@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Secure Switch Dashboard</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0f172a, #020617);
+    color: white;
+}
+
+h1 {
+    text-align: center;
+    padding: 20px;
+}
+
+.container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+.card {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border-radius: 15px;
+    padding: 15px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+.log {
+    background: rgba(255,255,255,0.08);
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+}
+
+.plain { color: #38bdf8; }
+.enc { color: #facc15; }
+.dec { color: #4ade80; }
+
+.status {
+    text-align: center;
+    color: #4ade80;
+    margin-bottom: 10px;
+}
+
+/* FLOW */
+.flow {
+    display: flex;
+    justify-content: center;
+    margin: 20px;
+    gap: 15px;
+}
+
+.node {
+    padding: 10px 15px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+}
+
+.arrow {
+    animation: move 1s infinite alternate;
+}
+
+@keyframes move {
+    from { transform: translateX(0px); }
+    to { transform: translateX(10px); }
+}
+
+/* SCROLL */
+.logs {
+    max-height: 300px;
+    overflow-y: auto;
+}
+</style>
+
+</head>
+
+<body>
+
+<h1>🔐 Secure Switch Dashboard</h1>
+
+<div class="status">● Secure Tunnel Active</div>
+
+<!-- FLOW -->
+<div class="flow">
+    <div class="node">💻 A</div>
+    <div class="arrow">➡️</div>
+    <div class="node">🔐 Switch A</div>
+    <div class="arrow">➡️</div>
+    <div class="node">🌐 Tunnel</div>
+    <div class="arrow">➡️</div>
+    <div class="node">🔓 Switch B</div>
+    <div class="arrow">➡️</div>
+    <div class="node">💻 B</div>
+</div>
+
+<div class="container">
+
+    <div class="card">
+        <h2>🔐 Encryption (Switch A)</h2>
+        <div id="A" class="logs"></div>
+    </div>
+
+    <div class="card">
+        <h2>🔓 Decryption (Switch B)</h2>
+        <div id="B" class="logs"></div>
+    </div>
+
+</div>
+
+<script>
+const IP = "172.16.97.4";
+
+async function load() {
+    try {
+        let res = await fetch(`http://${IP}:8000/logs`);
+        let data = await res.json();
+
+        A.innerHTML = "";
+        B.innerHTML = "";
+
+        data.forEach(l => {
+            let div = document.createElement("div");
+            div.className = "log";
+
+            if(l.type === "A"){
+                div.innerHTML = `
+                <div class="plain"><b>Plain:</b> ${l.plaintext}</div>
+                <div class="enc"><b>Encrypted:</b> ${l.ciphertext}</div>
+                `;
+                A.appendChild(div);
+            }
+
+            if(l.type === "B"){
+                div.innerHTML = `
+                <div class="enc"><b>Encrypted:</b> ${l.ciphertext}</div>
+                <div class="dec"><b>Decrypted:</b> ${l.decrypted}</div>
+                `;
+                B.appendChild(div);
+            }
+        });
+
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+setInterval(load, 1000);
+</script>
+
+</body>
+</html>
