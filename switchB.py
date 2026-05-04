@@ -6,7 +6,7 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 
-PC2_IP = "172.16.97.4"
+PC2_IP = "IP_ADDRESS"
 
 def send_log(data):
     try:
